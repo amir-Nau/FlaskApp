@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  
+
+<title>Upload Excel Files</title>
+
+<h1>Upload Excel Files</h1>
+{% if message %}
+<p><strong>{{ message }}</strong></p>
+{% endif %}
+<body>
+  
+  
+<h1>Welcome  {{ username }} </h1>
+
+<form method=post enctype=multipart/form-data action="/upload">
+  <input type=file name="files[]" multiple>
+  <input type=submit value=Upload>
+</form>
+</body>
+</html>

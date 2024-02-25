@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uploaded Excel Tables</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<h1>Uploaded Excel Tables</h1>
+
+<input type="text" id="searchInput" onkeyup="searchTables()" placeholder="Search for data...">
+
+<button onclick="exportToExcel()">Export Selected Rows</button>
+
+<form id="exportForm" action="/export" method="POST" style="display: none;">
+  <input type="hidden" id="exportData" name="exportData">
+</form>
+
+{% for table in tables %}
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Select</th>
+        {% for column in table.columns %}
+          <th>{{ column }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in table.itertuples() %}
+        <tr>
+          <td><input type="checkbox"></td>
+          {% for value in row[1:] %}
+            <td>{{ value }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endfor %}
+
+<script>
+function searchTables() {
+    var input, filter, tables, table, tr, td, i, j;
+    input = document.getElementById("searchInput");
+    filter = input.value.toUpperCase();
+    tables = document.getElementsByClassName("data");
+
+    for (i = 0; i < tables.length; i++) {
+        table = tables[i];
+        tr = table.getElementsByTagName("tr");
+        for (j = 1; j < tr.length; j++) {
+            var found = false;
+            td = tr[j].getElementsByTagName("td");
+            for (var k = 0; k < td.length; k++) {
+                if (td[k]) {
+                    if (td[k].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                tr[j].style.display = "";
+            } else {
+                tr[j].style.display = "none";
+            }
+        }
+    }
+}
+
+function exportToExcel() {
+    var selectedRows = [];
+    var checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+    checkboxes.forEach(function(checkbox) {
+        var row = checkbox.closest('tr');
+        var rowData = [];
+        row.querySelectorAll('td').forEach(function(cell) {
+            rowData.push(cell.innerText.trim());
+        });
+        selectedRows.push(rowData);
+    });
+    document.getElementById("exportData").value = JSON.stringify(selectedRows);
+    document.getElementById("exportForm").submit();
+}
+</script>
+
+</body>
+</html>
